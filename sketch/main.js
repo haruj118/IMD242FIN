@@ -6,6 +6,8 @@ const aspectH = 3;
 const container = document.body.querySelector('.container-canvas');
 // 필요에 따라 이하에 변수 생성.
 
+let candles = []; //arrayList 생성
+
 function setup() {
   // 컨테이너의 현재 위치, 크기 등의 정보 가져와서 객체구조분해할당을 통해 너비, 높이 정보를 변수로 추출.
   const { width: containerW, height: containerH } =
@@ -34,11 +36,70 @@ function setup() {
 }
 
 // windowResized()에서 setup()에 준하는 구문을 실행해야할 경우를 대비해 init이라는 명칭의 함수를 만들어 둠.
-function init() {}
+function init() {
+  candles = [];
+  //랜덤위치 불꽃 여러개 생성
+  const candleCount = 20;
+  for (let i = 0; i < candleCount; i++) {
+    const x = random(width * 0.1, width * 0.9);
+    const y = random(height * 0.5, height * 0.9);
+    const heightFactor = random(0.2, 0.4);
+    const flameColor = color(random(200, 255), random(100, 200), 0);
+    candles.push({x, y, heightFactor, flameColor});
+  }
+}
 
 function draw() {
-  background('white');
-  circle(mouseX, mouseY, 50);
+  background(30);
+  //circle(mouseX, mouseY, 50);
+
+  //촛대
+  candles.forEach((candle) => {
+    noStroke();
+    fill(200);
+    const candleWidth = 20;
+    const candleHeight = height * candle.heightFactor;
+    rect(candle.x - candleWidth / 2, candle.y - candleHeight,
+      candleWidth, candleHeight);
+
+      //불꽃
+      const flameWobble = random(-5, 5);
+      fill(candle.flameColor);
+      ellipse(candle.x + flameWobble, candle.y - candleHeight, 50, 70);
+
+      // 불꽃 가운데
+      fill(255, 200, 0, 150);
+      ellipse(candle.x + flameWobble, candle.y - candleHeight, 30, 50);
+
+      // 불빛
+      noFill();
+      stroke(255, 200, 0, 50);
+      strokeWeight(2);
+      for (let i = 0; i < 10; i++) {
+        ellipse(
+          candle.x + flameWobble,
+          candle.y - candleHeight,
+          70 + i * 5,
+          100 + i * 5
+        );
+      }
+    });
+  }
+  
+
+//마우스 움직임
+function mouseMoved() {
+  candles.forEach((candle) => {
+    candle.x += (mouseX - width / 2) * 0.001;
+    candle.y += (mouseY - height / 2) * 0.001;
+  });
+}
+  
+//마우스 클릭
+function mousePressed() {
+  candles.forEach((candle) => {
+    candle.flameColor = color(random(200, 255), random(100, 200), 0);
+  });
 }
 
 function windowResized() {
